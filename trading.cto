@@ -1,0 +1,149 @@
+enum ROLE { o seller
+o buyer
+}
+
+/* CONCEPT */
+concept  ADDRESS{
+o	String  Name  optional
+o	String  flatNumber
+o	String  Street
+o	String  PostCode
+}
+
+enum STATUS { o APPLIED
+o	PROCESSING
+o	VERIFYING
+o	VERIFIED
+o	REGISTERED
+o	NOT_ON_SALE
+o	ON_SALE
+o	DRAFTING_CONTRACT
+o	SIGNING_CONTRACT
+o	SOLD
+}
+
+
+/* PARTITICPANT */
+participant  user  identified  by  userID{
+o	String  userID
+o	ADDRESS  Address
+o	String  ph	/*  Holds  the  country  code  as  well.  For  example  +44  for  UK  */
+o	ROLE role
+}
+
+participant  registrar  identified  by  registrarID{
+o	String  registrarID
+o	String  registrarName
+}
+
+participant  authenticator  identified  by  authID{
+o	String  authID
+o	String  authName
+}
+
+
+/* ASSET */
+asset  artifact  identified  by  artifactID{ o  String  artifactID
+o	String  artifactName
+o	String  artifactDesc
+-->  user  owner
+o	STATUS  status
+}
+
+
+/* TRANSACTION */
+
+transaction  register{ o  String  artifactID
+o	String  artifactName
+o	String  artifactDesc
+-->  user  owner
+}
+
+transaction process{
+-->  artifact  processArtifact
+}
+
+event process1{
+-->  artifact  processArtifact
+}
+
+transaction  verify{
+-->  artifact  verifyArtifact
+}
+
+event verify1{
+-->  artifact  verifyArtifact
+}
+
+transaction  verified{
+-->  artifact  verifiedArtifact
+}
+
+event  verified1{
+-->  artifact  verifiedArtifact
+}
+
+transaction  registered{
+-->  artifact  registeredArtifact
+}
+
+event  registered1{
+-->  artifact  registeredArtifact
+}
+
+
+transaction  notonsale{
+-->  artifact  notonsaleArtifact
+}
+
+event  notonsale1{
+-->  artifact  notonsaleArtifact
+}
+
+transaction  onsale{
+-->  artifact  onsaleArtifact
+}
+
+event onsale1{
+-->  artifact  onsaleArtifact
+}
+
+transaction  draftingContract{
+-->  artifact  draftingArtifact
+}
+
+event  draftingContract1{
+-->  artifact  draftingArtifact
+}
+
+transaction  signingContract{
+-->  artifact  signingArtifact
+}
+
+event  signingContract1{
+-->  artifact  signingArtifact
+}
+
+transaction  sell{
+-->  artifact  soldArtifact
+-->  user  newowner
+}
+
+
+event sell1{
+-->  artifact  soldArtifact
+}
+
+
+transaction  modifyParticipant{
+-->  user  user o ADDRESS addr
+o String ph
+}
+
+transaction  changeRole{
+--> user user
+o ROLE role
+}
+ 
+
+

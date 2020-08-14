@@ -1,0 +1,137 @@
+/*
+*	Licensed  under  the  Apache  License,  Version  2.0  (the  "License");
+*	you  may  not  use  this  file  except  in  compliance  with  the  License.
+*	You  may  obtain  a  copy  of  the  License  at
+*
+*	http://www.apache.org/licenses/LICENSE-2.0
+*
+*	Unless  required  by  applicable  law  or  agreed  to  in  writing,  software
+*	distributed  under  the  License  is  distributed  on  an  "AS  IS"  BASIS,
+*	WITHOUT  WARRANTIES  OR  CONDITIONS  OF  ANY  KIND,  either  express  or  implied.
+*	See  the  License  for  the  specific  language  governing  permissions  and
+*	limitations under the License.
+*/
+rule userSeeSelf{
+description: "user see themselves" participant(p):  "org.example.empty.*" operation:  READ,  UPDATE
+resource(r):  "org.example.empty.*"
+condition:  (p.getIdentifier()==r.getIdentifier()) action: ALLOW
+}
+
+rule  userSeeAssets{
+description:  "user  see  their  artifacts" participant(p):  "org.example.empty.user" operation: READ
+resource(r):  "org.example.empty.artifact"
+condition:  (p.getIdentifier()==r.owner.getIdentifier()) action: ALLOW
+}
+
+rule  SellerCreateAssets{
+description:  "Seller  can  create  artifacts" participant(p):  "org.example.empty.user" operation:  CREATE,  UPDATE
+resource(r):  "org.example.empty.artifact" condition:  (p.role=="seller")
+action: ALLOW
+}
+
+rule  buyerSeeAssets{
+description: "buyer see buyable assets" participant(p):  "org.example.empty.user" operation: READ
+resource(r):  "org.example.empty.artifact"
+condition:  (p.role=="buyer"  &&  (r.status=="ON_SALE"  ||  r.status=="DRAFTING_CONT RACT" ))
+action: ALLOW
+}
+
+rule registrarParticipants{
+description:  "registrar  see  all  participants" participant:  "org.example.empty.registrar" operation:  READ,  UPDATE
+resource: "org.example.empty.user" action: ALLOW
+}
+
+rule registrarSeeAssets{
+description:  "registrar  see  artifacts" participant(p):  "org.example.empty.registrar" operation:  READ,  UPDATE
+resource(r):  "org.example.empty.artifact"
+condition:  (r.status=="APPLIED"  ||  r.status=="PROCESSING"  ||  r.status=="VERIFIE D"  ||  r.status=="SIGNING_CONTRACT")
+action: ALLOW
+}
+
+rule authenticatorSeeAssets{
+description:  "authenticator  see  artifacts" participant(p):  "org.example.empty.authenticator" operation:  READ,  UPDATE
+resource(r):  "org.example.empty.artifact" condition:  (r.status=="VERIFYING") action: ALLOW
+}
+
+rule sellerRegisterAssets{
+description:  "seller  can  register  assets" participant(p):  "org.example.empty.user"
+ 
+operation: ALL
+resource: "org.example.empty.register" condition:  (p.role=="seller")
+action: ALLOW
+}
+
+rule registrarProcessAssets{
+description:  "registrar  change  status  to  processing" participant:  "org.example.empty.registrar" operation: ALL
+resource: "org.example.empty.process" action: ALLOW
+}
+
+rule registrarVerifyAssets{
+description:  "registrar  change  status  to  verifying" participant:  "org.example.empty.registrar" operation: ALL
+resource: "org.example.empty.verify" action: ALLOW
+}
+
+rule authenticatorVerifyAssets{
+description:  "authenticator  change  status  to  verified" participant:  "org.example.empty.authenticator" operation: ALL
+resource: "org.example.empty.verified" action: ALLOW
+}
+
+rule registrarCompleteRegistration{
+description:  "registrar  change  status  to  registered" participant:  "org.example.empty.registrar" operation: ALL
+resource: "org.example.empty.registered" action: ALLOW
+}
+
+rule userDoesNotWantToSell{
+description:  "user  changes  status  to  not  on  sale" participant:  "org.example.empty.user"
+operation: ALL
+resource: "org.example.empty.notonsale" action: ALLOW
+}
+ 
+rule sellerWIshesToSellAssets{
+description:  "seller  changes  status  to  on  sale" participant:  "org.example.empty.user" operation: ALL
+resource: "org.example.empty.onsale" action: ALLOW
+}
+
+rule sellerInNegotiation{
+description:  "seller  changes  status  to  drafting  contract" participant:  "org.example.empty.user"
+operation: ALL
+resource: "org.example.empty.draftingContract" action: ALLOW
+}
+
+rule sellerSignsContract{
+description:  "seller  changes  status  to  signing  contract" participant:  "org.example.empty.user"
+operation: ALL
+resource: "org.example.empty.signingContract" action: ALLOW
+}
+
+rule sold{
+description:  "registrar  changes  status  to  sold  and  change  ownership" participant:  "org.example.empty.registrar"
+operation:  ALL
+resource:  "org.example.empty.sell" action: ALLOW
+}
+
+rule userChangeRole{
+description:  "user  changes  between  buyer  and  seller" participant:  "org.example.empty.user"
+operation: ALL
+resource: "org.example.empty.changeRole" action: ALLOW
+}
+
+rule  userChangeInfo{
+description: "user change their information" participant:  "org.example.empty.user"
+operation: ALL
+resource: "org.example.empty.modifyParticipant" action: ALLOW
+}
+
+
+rule systemACL{
+description:  "system  acl  to  permit  all  access" participant: "ANY"
+operation: ALL
+resource: "org.hyperledger.composer.system.**" action:ALLOW
+}
+
+
+rule NetworkAdminUser {
+description:  "Grant  business  network  administrators  full  access  to  user  resou rces"
+participant:  "org.hyperledger.composer.system.NetworkAdmin" operation: ALL
+resource: "**" action: ALLOW
+}
